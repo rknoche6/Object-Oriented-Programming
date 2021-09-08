@@ -1,0 +1,87 @@
+class GetName
+  attr_reader :name, :sign
+  def initialize (x)
+    p "What is your name player #{x}?"
+    @name = gets.chomp
+    p "#{name} do you wish to be O or X"
+    @sign= gets.chomp
+  end
+end
+
+class Play
+  @@grid_array=[1,2,3,4,5,6,7,8,9]
+  def initialize (player)
+    @player= player
+  end
+
+  def print_current_result
+    puts "#{@@grid_array[0]} | #{@@grid_array[1]} | #{@@grid_array[2]}"
+    puts "--+---+--"
+    puts "#{@@grid_array[3]} | #{@@grid_array[4]} | #{@@grid_array[5]}"
+    puts "--+---+--"
+    puts "#{@@grid_array[6]} | #{@@grid_array[7]} | #{@@grid_array[8]}"
+  end
+
+  def get_choice
+    puts"#{@player.name} please press a number between 1-9 to place your choice"
+    choice= gets.chomp
+    temp = choice.to_i
+    temporary = temp -1
+    @@grid_array[temporary]= @player.sign
+  end
+
+  def self.current_grid_array
+    @@grid_array
+  end
+end
+
+def test_if_finish(array)
+  if array[0]==array[1] && array[1]==array[2]
+    return true
+  elsif array[3]==array[4] && array[4]==array[5]
+    return true
+  elsif array[6]==array[7] && array[7]==array[8]
+    return true
+  elsif array[0]==array[3] && array[3]==array[6]
+    return true
+  elsif array[1]==array[4] && array[4]==array[7]
+    return true
+  elsif array[2]==array[5] && array[5]==array[8]
+    return true 
+  elsif array[0]==array[4] && array[4]==array[8]
+    return true
+  elsif array[2]==array[4] && array[4]==array[6]
+    return true   
+  else 
+    return false
+  end
+end 
+
+play_again="yes"
+while play_again="yes"
+  game_end=false
+  player1 = GetName.new(1)
+  player2 = GetName.new(2)
+  player1_play= Play.new(player1)
+  player2_play= Play.new(player2)
+  player1_play.print_current_result
+
+  while game_end==false
+    player1_play.get_choice
+    player1_play.print_current_result
+    winner= player1.name
+    game_end = test_if_finish(Play.current_grid_array)
+    break if game_end==true
+    player2_play.get_choice
+    player2_play.print_current_result 
+    winner= player2.name
+    game_end = test_if_finish(Play.current_grid_array)
+  end
+
+  puts "WOW #{winner} won!!!"
+  puts "Type 'yes' if you wish to play again"
+  play_again= gets.chomp
+  if play_again=='yes'
+    Play.class_variable_set(:@@grid_array,[1,2,3,4,5,6,7,8,9])
+  end
+end
