@@ -1,0 +1,131 @@
+class Board
+  attr_accessor :tries_count, :array_board
+  def initialize(tries_count)
+    @tries_count= tries_count
+    @array_board=Array.new(@tries_count) { Array.new(4)}
+    @array_board.each do |estimate|
+      estimate.map!{|value| value="-"}
+    end
+  end
+
+  def print_board
+    for i in 0..@tries_count-1
+      p "| #{@array_board[i][0]} | #{@array_board[i][1]} | #{@array_board[i][2]} | #{@array_board[i][3]} |"
+    end
+  end
+end
+ 
+class HumanGuess < Board
+  attr_accessor  :array_board, :guess_input
+
+  def initialize(number_of_test)
+    @count_clues_position = 0
+    @count_clues_not_in_position = 0
+    @guess_input=""
+    super
+  end
+  def guessing
+    puts "Write your color guesses like: r b b r (for red, blue, blue, red:"
+    @guess_input= gets.chomp.split(" ")
+    return @guess_input
+  end
+  def replace(array_of_guess, guess_index)
+    @array_board[guess_index]= array_of_guess
+    return @array_board
+  end
+  def clues(guess, solution)
+    solution.each_with_index do |color_guessed, index_of_guess|
+      if color_guessed==guess[index_of_guess]
+        @count_clues_position += 1 
+      elsif guess.include? color_guessed
+        @count_clues_not_in_position +=1
+      end
+    end
+    puts "#{@count_clues_position} colors are in the right position and of the right color and #{@count_clues_not_in_position} are of the right color but not in the right position."
+    @count_clues_position = 0
+    @count_clues_not_in_position= 0
+  end 
+end
+
+class ComputerGuess < Board
+  def initialize(number_of_test)
+    @number_of_test= number_of_test
+    @solution = gets.chomp.split(" ")
+    @computer_guess = []
+    @test_done=0
+    super
+  end
+  def guessing
+    current_guess= ["r", "b", "w", "g", "y", "b"].sample(4) 
+    @array_board[@test_done]= current_guess
+    @test_done+=1
+  end
+
+  def finished
+    if @solution==@computer_guess
+      return true
+      p "The computer won!"
+    elsif @number_of_test == @test_done-1
+      p "You won, the computer lost :)"
+      return true
+    else 
+      return false
+    end
+  end
+end
+
+
+
+
+
+
+
+def get_secret_value
+  solution= ["r", "b", "w", "g", "y", "b"].sample(4)
+end
+
+puts "Do you wish to be a code breaker or a code maker?"
+puts "Type 1 for code breaker, and 2 for code maker:"
+two_option = gets.chomp.to_i
+if two_option== 1
+  puts "You wish to be a code Breaker"
+  puts "How many tries do you need:"
+  number_of_tries= gets.chomp.to_i
+  game = Board.new(number_of_tries)
+  game.print_board
+  guess= HumanGuess.new(game.tries_count)
+  guesses = guess.guessing
+  count_rounds=0
+  solution = get_secret_value
+  p solution
+  until guesses == solution || number_of_tries<=1
+    guess.replace(guess.guess_input, count_rounds)
+    guess.array_board
+    guess.print_board
+    guess.clues(guesses, solution)
+    puts guesses = guess.guessing
+    number_of_tries -= 1
+    count_rounds += 1
+  end
+  if guesses == solution
+    puts "You won, you found out the code!"
+  else 
+    puts "Sorry you lost, do you wish to play again?"
+  end
+
+elsif two_option == 2
+  puts "You wish to be a code maker"
+  puts "How many tries should the computer have?"
+  number_of_tries= gets.chomp.to_i
+  game = Board.new(number_of_tries)
+  game.print_board
+  puts "Type in your secret code using only white, black, yellow, green, blue and red in the following format: 'w b r b':"
+  guess= ComputerGuess.new(number_of_tries)
+  until guess.finished == true
+    guess.guessing
+    guess.print_board
+    puts "-------"
+  end
+end
+
+
